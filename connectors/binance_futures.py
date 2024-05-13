@@ -8,6 +8,8 @@ logger = logging.getLogger()
 
 class BinanceFuturesClient:
     def __init__(self, testnet: bool):
+        self.prices = dict()
+
         if testnet:
             self.base_url = base_urls.TESTNET_BASE_URL
         else:
@@ -52,8 +54,8 @@ class BinanceFuturesClient:
                         candle[0], # timestamp
                         float(candle[1]), # open price
                         float(candle[2]), # high price
-                        float(candle[3]), #
-                        float(candle[4]), #
+                        float(candle[3]), # low price
+                        float(candle[4]), # close price
                         float(candle[5]), # volume
                     ]
                 )
