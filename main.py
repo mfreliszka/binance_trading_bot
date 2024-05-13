@@ -1,22 +1,42 @@
 import tkinter as tk
 import logging
 
-logger = logging.getLogger()
+from connectors.binance_futures import get_contracts
 
-logger.debug("Only when debugging.")
-logger.info("Information")
-logger.warning("Warning")
-logger.error("Error message")
+
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
 
 stream_handler = logging.StreamHandler()
 formatter = logging.Formatter("%(asctime)s %(levelname)s :: %(message)s")
-
 stream_handler.setFormatter(formatter)
 stream_handler.setLevel(logging.INFO)
 
+file_handler = logging.FileHandler("info.log")
+file_handler.setFormatter(formatter)
+file_handler.setLevel(logging.DEBUG)
+
 logger.addHandler(stream_handler)
+logger.addHandler(file_handler)
 
 
-root = tk.Tk()
-root.mainloop()
+if __name__ == "__main__":
+    contracts = get_contracts()
+    root = tk.Tk()
+    root.configure(bg="gray12")
+ 
+    i = 0
+    j = 0
+
+    for contract in contracts:
+        label_widget = tk.Label(root, text=contract, bg="gray12", fg="SteelBlue1", width=13)
+        label_widget.grid(row=i, column=j, sticky="ew")
+
+        if i == 4:
+            j += 1
+            i = 0
+        else:
+            i += 1
+
+    root.mainloop()
 
