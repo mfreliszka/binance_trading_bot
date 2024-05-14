@@ -1,20 +1,35 @@
 import logging
 import requests
 import base_urls
+
+from urllib.parse import urlencode
+import hmac
+from hashlib import sha256
+from time import time
+
 logger = logging.getLogger()
 
 
 
 
 class BinanceFuturesClient:
-    def __init__(self, testnet: bool):
-        self.prices = dict()
-
+    def __init__(self, public_key: str, secret_key: str, testnet: bool):
         if testnet:
             self.base_url = base_urls.TESTNET_BASE_URL
         else:
             self.base_url = base_urls.BASE_URL
     
+        self.public_key: str = public_key
+        self.secret_key: str = secret_key
+
+        self.headers = {"X-MBX-APIKEY": self.public_key}
+        self.prices = dict()
+
+        logger.info("Binance Futures Client initialized successfully")
+
+    def generate_signature(self, data):
+        return hmac.new(str(self.secret_key).encode(), urlencode(data).encode(), sha256).hexdigest()
+ 
     def make_request(self, method, endpoint, data):
         if method == "GET":
             response = requests.get(self.base_url + endpoint, params=data)
@@ -78,3 +93,18 @@ class BinanceFuturesClient:
                 self.prices[symbol]["ask"] = ob_data["askPrice"]
 
         return self.prices
+
+    def get_balance(self):
+        data = dict()
+        data["timestamp"] = int(time() * 1000) # miliseconds
+        data["signature"] = self.generate_signature(data)
+
+        balances = dict()
+
+        account_data = self.make_request("GET", base_urls.ACCOUNT, data)
+
+        if account_data is not None:
+            for asset in account_data["assets"]:
+                balances[asset["asset"]] = account_data
+    
+        return balances

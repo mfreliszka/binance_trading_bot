@@ -2,7 +2,7 @@ import tkinter as tk
 import logging
 
 from connectors.binance_futures import BinanceFuturesClient
-
+from os import environ
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -21,7 +21,11 @@ logger.addHandler(file_handler)
 
 
 if __name__ == "__main__":
-    binance = BinanceFuturesClient(True)
+    binance = BinanceFuturesClient(
+        public_key=environ.get("API_KEY"),
+        secret_key=environ.get("API_SECRET"),
+        testnet=True,
+    )
     root = tk.Tk()
     root.configure(bg="gray12")
  
@@ -38,7 +42,8 @@ if __name__ == "__main__":
         else:
             i += 1
 
-    print(binance.get_historical_candles("BTCUSDT", "1h"))
-    print(binance.get_bid_ask("BTCUSDT"))
+    #print(binance.get_historical_candles("BTCUSDT", "1h"))
+    #print(binance.get_bid_ask("BTCUSDT"))
+    print(binance.get_balance())
     root.mainloop()
 
