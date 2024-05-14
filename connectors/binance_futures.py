@@ -22,17 +22,17 @@ class BinanceFuturesClient:
         self.public_key: str = public_key
         self.secret_key: str = secret_key
 
-        self.headers = {"X-MBX-APIKEY": self.public_key}
+        self.headers = {'X-MBX-APIKEY': self.public_key}
         self.prices = dict()
 
         logger.info("Binance Futures Client initialized successfully")
 
     def generate_signature(self, data):
-        return hmac.new(str(self.secret_key).encode(), urlencode(data).encode(), sha256).hexdigest()
+        return hmac.new(self.secret_key.encode(), urlencode(data).encode(), sha256).hexdigest()
  
     def make_request(self, method, endpoint, data):
         if method == "GET":
-            response = requests.get(self.base_url + endpoint, params=data)
+            response = requests.get(self.base_url + endpoint, params=data, headers=self.headers)
         else:
             raise ValueError()
 
